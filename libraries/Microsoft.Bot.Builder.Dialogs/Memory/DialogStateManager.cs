@@ -35,35 +35,22 @@ namespace Microsoft.Bot.Builder.Dialogs.Memory
 
         public DialogStateManager(DialogContext dc, DialogStateManagerConfiguration configuration = null)
         {
-            ComponentRegistration.Add(new DialogsComponentRegistration());
-
             _dialogContext = dc ?? throw new ArgumentNullException(nameof(dc));
-            Configuration = configuration ?? dc.Context.TurnState.Get<DialogStateManagerConfiguration>();
-            if (Configuration == null)
+
+            if (configuration != null)
             {
-                Configuration = new DialogStateManagerConfiguration();
-
-                // get all of the component memory scopes
-                foreach (var component in ComponentRegistration.Components.OfType<IComponentMemoryScopes>())
-                {
-                    foreach (var memoryScope in component.GetMemoryScopes())
-                    {
-                        Configuration.MemoryScopes.Add(memoryScope);
-                    }
-                }
-
-                // get all of the component path resolvers
-                foreach (var component in ComponentRegistration.Components.OfType<IComponentPathResolvers>())
-                {
-                    foreach (var pathResolver in component.GetPathResolvers())
-                    {
-                        Configuration.PathResolvers.Add(pathResolver);
-                    }
-                }
+                // cache for any other new dialogStatemanager instances in this turn.  
+                _dialogContext.Context.TurnState.Set(configuration);
             }
 
-            // cache for any other new dialogStatemanager instances in this turn.  
-            dc.Context.TurnState.Set(Configuration);
+            // DialogManager sets dm.StateConfiguration into the turnstate so it can be configured from there.
+            this.Configuration = configuration ?? dc.Context.TurnState.Get<DialogStateManagerConfiguration>();
+            if (this.Configuration == null)
+            {
+                // this bootstraps non-DialogManager dialog contexts.
+                this.Configuration = new DialogStateManagerConfiguration();
+                _dialogContext.Context.TurnState.Set(this.Configuration);
+            }
         }
 
         public DialogStateManagerConfiguration Configuration { get; set; }

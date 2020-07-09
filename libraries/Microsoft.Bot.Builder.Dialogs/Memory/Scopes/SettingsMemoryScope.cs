@@ -22,6 +22,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Memory.Scopes
             IncludeInSnapshot = false;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to scope memory to appId.
+        /// </summary>
+        /// <value>If true then settings memory scope will be scoped to bot appid section of IConfiguration[turnContext.AppId]. If False it will be global settings.</value>
+        public bool ScopeToAppId { get; set; } = false;
+
         public override object GetMemory(DialogContext dc)
         {
             if (dc == null)
@@ -34,8 +40,20 @@ namespace Microsoft.Bot.Builder.Dialogs.Memory.Scopes
                 var configuration = dc.Context.TurnState.Get<IConfiguration>();
                 if (configuration != null)
                 {
-                    settings = LoadSettings(configuration);
-                    dc.Context.TurnState[ScopePath.Settings] = settings;
+                    if (ScopeToAppId)
+                    {
+                        // global[appId] settings 
+                        var appId = ((TurnContext)dc.Context).AppId;
+                        configuration = configuration.GetSection(appId);
+                        settings = LoadSettings(configuration)[appId];
+                        dc.Context.TurnState[ScopePath.Settings] = settings;
+                    }
+                    else
+                    {
+                        // global settings
+                        settings = LoadSettings(configuration);
+                        dc.Context.TurnState[ScopePath.Settings] = settings;
+                    }
                 }
             }
 

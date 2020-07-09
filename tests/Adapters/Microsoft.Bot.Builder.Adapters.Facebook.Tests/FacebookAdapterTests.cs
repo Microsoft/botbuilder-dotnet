@@ -45,7 +45,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
                 return Task.CompletedTask;
             }
 
-            await facebookAdapter.ContinueConversationAsync(conversationReference, BotsLogic, default);
+            await facebookAdapter.ContinueConversationAsync("mybot", conversationReference, BotsLogic, default);
             Assert.True(callbackInvoked);
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
                 return Task.CompletedTask;
             }
 
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookAdapter.ContinueConversationAsync(null, BotsLogic, default); });
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookAdapter.ContinueConversationAsync("mybot", null, BotsLogic, default); });
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             var facebookAdapter = new FacebookAdapter(new FacebookClientWrapper(_testOptions), _adapterOptions);
             var conversationReference = new ConversationReference();
 
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookAdapter.ContinueConversationAsync(conversationReference, null, default); });
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => { await facebookAdapter.ContinueConversationAsync("mybot", conversationReference, null, default); });
         }
 
         [Fact]
@@ -359,7 +359,7 @@ namespace Microsoft.Bot.Builder.Adapters.Facebook.Tests
             Assert.Equal(testResponse, responses[0].Id);
             facebookClientWrapper.Verify(api => api.RequestThreadControlAsync(It.IsAny<string>(), It.IsAny<string>(), default), Times.Once);
         }
-        
+
         [Fact]
         public async Task UpdateActivityAsyncShouldThrowNotImplementedException()
         {
