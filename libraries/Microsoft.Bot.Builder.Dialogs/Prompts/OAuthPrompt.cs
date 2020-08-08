@@ -111,12 +111,7 @@ namespace Microsoft.Bot.Builder.Dialogs
                 throw new ArgumentException($"{nameof(options)} cannot be a cancellation token", nameof(options));
             }
 
-            if (options != null && !(options is PromptOptions))
-            {
-                throw new ArgumentException($"Parameter {nameof(options)} should be an instance of to {nameof(PromptOptions)} if provided", nameof(options));
-            }
-
-            var opt = (PromptOptions)options;
+            var opt = ObjectPath.MapValueTo<PromptOptions>(options);
             if (opt != null)
             {
                 // Ensure prompts have input hint set
@@ -198,11 +193,11 @@ namespace Microsoft.Bot.Builder.Dialogs
                 return await dc.EndDialogAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
+            var promptState = state.MapValueTo<IDictionary<string, object>>(PersistedState);
+            var promptOptions = state.MapValueTo<PromptOptions>(PersistedOptions);
+
             // Recognize token
             var recognized = await RecognizeTokenAsync(dc, cancellationToken).ConfigureAwait(false);
-
-            var promptState = state[PersistedState].CastTo<IDictionary<string, object>>();
-            var promptOptions = state[PersistedOptions].CastTo<PromptOptions>();
 
             // Increment attempt count
             // Convert.ToInt32 For issue https://github.com/Microsoft/botbuilder-dotnet/issues/1859

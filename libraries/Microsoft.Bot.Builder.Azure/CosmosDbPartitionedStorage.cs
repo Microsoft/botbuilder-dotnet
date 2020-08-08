@@ -139,6 +139,11 @@ namespace Microsoft.Bot.Builder.Azure
                         storeItem.ETag = documentStoreItem.ETag;
                         storeItems.Add(documentStoreItem.RealId, storeItem);
                     }
+                    else if (item is JObject asJobject && asJobject.ContainsKey("ETag"))
+                    {
+                        asJobject["ETag"] = documentStoreItem.ETag;
+                        storeItems.Add(documentStoreItem.RealId, item);
+                    }
                     else
                     {
                         storeItems.Add(documentStoreItem.RealId, item);
@@ -200,7 +205,7 @@ namespace Microsoft.Bot.Builder.Azure
                     Document = json,
                 };
 
-                var etag = (change.Value as IStoreItem)?.ETag;
+                string etag = StorageExtensions.GetETagOrNull(change.Value);
                 if (etag == null || etag == "*")
                 {
                     // if new item or * then insert or replace unconditionally

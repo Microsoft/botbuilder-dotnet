@@ -192,6 +192,15 @@ namespace Microsoft.Bot.Builder.Azure.Tests
         }
 
         [TestMethod]
+        public async Task UpdateObjectTest_AsJObjects_TypeNameHandlingNone()
+        {
+            if (StorageEmulatorHelper.CheckEmulator())
+            {
+                await UpdateObjectTest_AsJObjects(GetStorage(true));
+            }
+        }
+
+        [TestMethod]
         public async Task TestConversationStateBlobStorage_TypeNameHandlingNone()
         {
             if (StorageEmulatorHelper.CheckEmulator())
@@ -206,6 +215,24 @@ namespace Microsoft.Bot.Builder.Azure.Tests
             if (StorageEmulatorHelper.CheckEmulator())
             {
                 await StatePersistsThroughMultiTurn(GetStorage(true));
+            }
+        }
+
+        [TestMethod]
+        public async Task TestTypedObjects_TypeNameHandling_All()
+        {
+            if (StorageEmulatorHelper.CheckEmulator())
+            {
+                await TestTypedObjects(GetStorage(), expectTyped: true);
+            }
+        }
+
+        [TestMethod]
+        public async Task TestTypedObjects_TypeNameHandling_None()
+        {
+            if (StorageEmulatorHelper.CheckEmulator())
+            {
+                await TestTypedObjects(GetStorage(true), expectTyped: false);
             }
         }
 

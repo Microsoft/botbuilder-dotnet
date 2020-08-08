@@ -29,6 +29,18 @@ namespace Microsoft.Bot.Builder.Tests
         }
 
         [Fact]
+        public async Task MemoryStorage_TestTyped()
+        {
+            await TestTypedObjects(new MemoryStorage(new JsonSerializer() { TypeNameHandling = TypeNameHandling.All }), expectTyped: true);
+        }
+
+        [Fact]
+        public async Task MemoryStorage_TestUnTyped()
+        {
+            await TestTypedObjects(new MemoryStorage(new JsonSerializer() { TypeNameHandling = TypeNameHandling.None }), expectTyped: false);
+        }
+
+        [Fact]
         public void MemoryParamTest()
         {
             Assert.Throws<ArgumentNullException>(() =>
@@ -64,6 +76,13 @@ namespace Microsoft.Bot.Builder.Tests
         {
             storage = new MemoryStorage(new JsonSerializer() { TypeNameHandling = TypeNameHandling.None });
             await StatePersistsThroughMultiTurn(storage);
+        }
+        
+        [Fact]
+        public async Task UpdateObjectTest_AsJObjects_TypeNameHandlingNone()
+        {
+            storage = new MemoryStorage(new JsonSerializer() { TypeNameHandling = TypeNameHandling.None });
+            await UpdateObjectTest_AsJObjects(storage);
         }
     }
 }

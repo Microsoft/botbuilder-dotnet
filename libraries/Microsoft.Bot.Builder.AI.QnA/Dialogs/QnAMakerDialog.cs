@@ -505,7 +505,7 @@ namespace Microsoft.Bot.Builder.AI.QnA.Dialogs
                 CardNoMatchResponse = await this.CardNoMatchResponse.BindAsync(dc).ConfigureAwait(false)
             };
         }
-        
+
         private static void ResetOptions(DialogContext dc, QnAMakerDialogOptions dialogOptions)
         {
             // Resetting context and QnAId
@@ -600,8 +600,8 @@ namespace Microsoft.Bot.Builder.AI.QnA.Dialogs
         private async Task<DialogTurnResult> CallTrainAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var dialogOptions = ObjectPath.GetPathValue<QnAMakerDialogOptions>(stepContext.ActiveDialog.State, Options);
-            var trainResponses = stepContext.Values[ValueProperty.QnAData] as List<QueryResult>;
-            var currentQuery = stepContext.Values[ValueProperty.CurrentQuery] as string;
+            var trainResponses = stepContext.Values.MapValueTo<List<QueryResult>>(ValueProperty.QnAData);
+            var currentQuery = stepContext.Values.MapValueTo<string>(ValueProperty.CurrentQuery);
 
             var reply = stepContext.Context.Activity.Text;
 

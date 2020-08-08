@@ -183,7 +183,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
                 }
             }
 
-            var activeDialogState = dc.ActiveDialog.State as Dictionary<string, object>;
+            var activeDialogState = dc.ActiveDialog.State;
             activeDialogState[AdaptiveKey] = new AdaptiveDialogState();
 
             // Evaluate events and queue up step changes
@@ -268,7 +268,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
         public virtual async Task RepromptDialogAsync(DialogContext dc, DialogInstance instance, CancellationToken cancellationToken = default)
         {
             // Forward to current sequence step
-            var state = (instance.State as Dictionary<string, object>)[AdaptiveKey] as AdaptiveDialogState;
+            var state = instance.State.MapValueTo<AdaptiveDialogState>(AdaptiveKey);
 
             if (state.Actions.Any())
             {
@@ -281,8 +281,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
 
         public override DialogContext CreateChildContext(DialogContext dc)
         {
-            var activeDialogState = dc.ActiveDialog.State as Dictionary<string, object>;
-            var state = activeDialogState[AdaptiveKey] as AdaptiveDialogState;
+            var activeDialogState = dc.ActiveDialog.State;
+            var state = activeDialogState.MapValueTo<AdaptiveDialogState>(AdaptiveKey);
 
             if (state == null)
             {
@@ -870,8 +870,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive
 
         private ActionContext ToActionContext(DialogContext dc)
         {
-            var activeDialogState = dc.ActiveDialog.State as Dictionary<string, object>;
-            var state = activeDialogState[AdaptiveKey] as AdaptiveDialogState;
+            var activeDialogState = dc.ActiveDialog.State;
+            var state = activeDialogState.MapValueTo<AdaptiveDialogState>(AdaptiveKey);
 
             if (state == null)
             {

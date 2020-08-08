@@ -26,13 +26,8 @@ namespace Microsoft.Bot.Builder.Dialogs.Tests
                 throw new ArgumentNullException(nameof(dc));
             }
 
-            if (!(options is PromptOptions))
-            {
-                throw new ArgumentOutOfRangeException(nameof(options), "Prompt options are required for Prompt dialogs");
-            }
-
             // Ensure prompts have input hint set
-            var opt = (PromptOptions)options;
+            var opt = ObjectPath.MapValueTo<PromptOptions>(options);
             if (opt.Prompt != null && string.IsNullOrEmpty(opt.Prompt.InputHint))
             {
                 opt.Prompt.InputHint = InputHints.ExpectingInput;
@@ -52,7 +47,7 @@ namespace Microsoft.Bot.Builder.Dialogs.Tests
             };
 
             // Send initial prompt, calling OnPromptAsync() overload that does not have isRetry parameter
-            await OnPromptAsync(dc.Context, (IDictionary<string, object>)state[PersistedState], (PromptOptions)state[PersistedOptions], cancellationToken).ConfigureAwait(false);
+            await OnPromptAsync(dc.Context, state.MapValueTo<IDictionary<string, object>>(PersistedState), state.MapValueTo<PromptOptions>(PersistedOptions), cancellationToken).ConfigureAwait(false);
             return EndOfTurn;
         }
     }

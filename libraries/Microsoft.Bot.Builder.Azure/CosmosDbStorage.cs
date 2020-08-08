@@ -249,6 +249,10 @@ namespace Microsoft.Bot.Builder.Azure
                     {
                         storeItem.ETag = doc.ETag;
                     }
+                    else if (item is JObject asJobject && asJobject.ContainsKey("ETag"))
+                    {
+                        asJobject["ETag"] = doc.ETag;
+                    }
 
                     // doc.Id cannot be used since it is escaped, read it from RealId property instead
                     storeItems.Add(doc.ReadlId, item);
@@ -296,8 +300,8 @@ namespace Microsoft.Bot.Builder.Azure
                     ReadlId = change.Key,
                     Document = json,
                 };
-
-                var etag = (change.Value as IStoreItem)?.ETag;
+                
+                string etag = StorageExtensions.GetETagOrNull(change.Value);
                 if (etag == null || etag == "*")
                 {
                     // if new item or * then insert or replace unconditionaly

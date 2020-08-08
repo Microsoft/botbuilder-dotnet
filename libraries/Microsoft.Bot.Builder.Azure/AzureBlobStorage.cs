@@ -14,6 +14,7 @@ using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 using Microsoft.WindowsAzure.Storage.Core;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Bot.Builder.Azure
 {
@@ -182,11 +183,12 @@ namespace Microsoft.Bot.Builder.Azure
             foreach (var keyValuePair in changes)
             {
                 var newValue = keyValuePair.Value;
-                var storeItem = newValue as IStoreItem;
+
+                string etag = StorageExtensions.GetETagOrNull(newValue);
 
                 // "*" eTag in IStoreItem converts to null condition for AccessCondition
-                var accessCondition = storeItem?.ETag != "*"
-                    ? AccessCondition.GenerateIfMatchCondition(storeItem?.ETag)
+                var accessCondition = etag != "*"
+                    ? AccessCondition.GenerateIfMatchCondition(etag)
                     : AccessCondition.GenerateEmptyCondition();
 
                 var blobName = GetBlobName(keyValuePair.Key);
@@ -244,6 +246,10 @@ namespace Microsoft.Bot.Builder.Azure
                         if (obj is IStoreItem storeItem)
                         {
                             storeItem.ETag = blobReference.Properties.ETag;
+                        }
+                        else if (obj is JObject asJobject && asJobject.ContainsKey("ETag"))
+                        {
+                            asJobject["ETag"] = blobReference.Properties.ETag;
                         }
 
                         return obj;
