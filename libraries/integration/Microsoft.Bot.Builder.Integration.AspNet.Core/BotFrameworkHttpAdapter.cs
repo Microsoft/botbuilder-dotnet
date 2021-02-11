@@ -27,6 +27,8 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core
     {
         private const string AuthHeaderName = "authorization";
         private const string ChannelIdHeaderName = "channelid";
+        
+        private readonly BackgroundTaskService _backgroundTaskService = new BackgroundTaskService(); // TODO get this from DI
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BotFrameworkHttpAdapter"/> class,
@@ -170,11 +172,29 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core
 
                 try
                 {
-                    // Process the inbound activity with the bot
-                    var invokeResponse = await ProcessActivityAsync(authHeader, activity, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
+                    if (activity.DeliveryMode == DeliveryModes.ExpectReplies || activity.Type == ActivityTypes.Invoke)
+                    {
+                        // Process the inbound activity with the bot
+                        var invokeResponse = await ProcessActivityAsync(authHeader, activity, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
 
-                    // write the response, potentially serializing the InvokeResponse
-                    await HttpHelper.WriteResponseAsync(httpResponse, invokeResponse).ConfigureAwait(false);
+                        // write the response, potentially serializing the InvokeResponse
+                        await HttpHelper.WriteResponseAsync(httpResponse, invokeResponse).ConfigureAwait(false);
+                    }
+                    else
+                    {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        // run pipeline in background and return immediately.
+                        var turnProcessingTask = ProcessActivityAsync(authHeader, activity, bot.OnTurnAsync, cancellationToken)
+                            .ContinueWith(t => t?.Exception?.Handle((e) => true), TaskScheduler.Default);
+
+                        // when there is a BackgroundTaskService we use it to inform asp.net that we have an async task.
+                        if (_backgroundTaskService != null)
+                        {
+                            _backgroundTaskService.AddTask(turnProcessingTask);
+                        }
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        httpResponse.StatusCode = (int)HttpStatusCode.Accepted;
+                    }
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -183,7 +203,7 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core
                 }
             }
         }
-        
+
         private static async Task WriteUnauthorizedResponseAsync(string headerName, HttpRequest httpRequest)
         {
             httpRequest.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -289,7 +309,7 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core
                         httpRequest.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                         return null;
                     }
-                    
+
                     ClaimsIdentity = claimsIdentity;
                     return claimsIdentity;
                 }
@@ -319,8 +339,8 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core
             if (claimsIdentity.AuthenticationType != AuthenticationConstants.AnonymousAuthType)
             {
                 var audience = ChannelProvider != null && ChannelProvider.IsGovernment() ?
-    GovernmentAuthenticationConstants.ToChannelFromBotOAuthScope :
-    AuthenticationConstants.ToChannelFromBotOAuthScope;
+                    GovernmentAuthenticationConstants.ToChannelFromBotOAuthScope :
+                    AuthenticationConstants.ToChannelFromBotOAuthScope;
 
                 if (SkillValidation.IsSkillClaim(claimsIdentity.Claims))
                 {
