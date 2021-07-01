@@ -1,0 +1,49 @@
+﻿{
+  "$schema": "../../tests.schema",
+  "$kind": "Microsoft.AdaptiveDialog",
+  "generator": "test.lg",
+  "triggers": [
+    {
+      "$kind": "Microsoft.OnBeginDialog",
+      "actions": [
+        {
+          "$kind": "Microsoft.SetProperty",
+          "property": "user.number1",
+          "value": "=1"
+        },
+        {
+          "$kind": "Microsoft.SetProperty",
+          "property": "user.number2",
+          "value": "=2"
+        },
+        {
+          "$kind": "Microsoft.SetProperty",
+          "property": "user.sum",
+          "value": "=MySum(user.number1, user.number2)"
+        },
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "${user.sum}"
+        },
+        {
+          "$kind": "Microsoft.SetProperty",
+          "property": "user.length",
+          "value": "=length('abc')"
+        },
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "${user.length}"
+        },
+        {
+          "$kind": "Microsoft.SetProperty",
+          "property": "user.length",
+          "value": "=lg.length('abc')"
+        },
+        {
+          "$kind": "Microsoft.SendActivity",
+          "activity": "${user.length}"
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaptiveExpressions;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
@@ -27,6 +28,7 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
     {
         public LGGeneratorTests()
         {
+            Expression.Functions.Clear();
             ComponentRegistration.Add(new DialogsComponentRegistration());
             ComponentRegistration.Add(new DeclarativeComponentRegistration());
             ComponentRegistration.Add(new AdaptiveComponentRegistration());
@@ -230,6 +232,7 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
         [Fact]
         public async Task TestResourceMultiLanguageGenerator()
         {
+            Expression.Functions.Clear();
             var lg = new ResourceMultiLanguageGenerator("test.lg");
 
             // Configure last locale fallback to be non-overlapping with the explicitly set languages so we can
@@ -409,7 +412,7 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
             var resourceExplorer = new ResourceExplorer().LoadProject(GetProjectFolder(), monitorChanges: false);
             DialogManager dm = new DialogManager()
                 .UseResourceExplorer(resourceExplorer)
-                .UseLanguageGeneration("test.lg")
+                .UseLanguageGeneration()
                 .UseLanguagePolicy(new LanguagePolicy("fr-fr"));
             dm.RootDialog = (AdaptiveDialog)resourceExplorer.LoadType<Dialog>("test.dialog");
 
@@ -420,6 +423,27 @@ namespace Microsoft.Bot.Builder.AI.LanguageGeneration.Tests
             .Send("hello")
                 .AssertReply("root")
                 .AssertReply("overriden in fr")
+            .StartTestAsync();
+        }
+
+        [Fact]
+        public async Task TestInjectScope()
+        {
+            var resourceExplorer = new ResourceExplorer().LoadProject(GetProjectFolder(), monitorChanges: false);
+            DialogManager dm = new DialogManager()
+                .UseResourceExplorer(resourceExplorer)
+                .UseLanguageGeneration()
+                .UseLanguagePolicy(new LanguagePolicy("fr-fr"));
+            dm.RootDialog = (AdaptiveDialog)resourceExplorer.LoadType<Dialog>("testInjectScope.dialog");
+
+            await CreateFlow(async (dialogContext, cancellationToken) =>
+            {
+                await dm.OnTurnAsync(dialogContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+            })
+            .Send("hello")
+                .AssertReply("root")
+                .AssertReply("overriden in fr")
+                .AssertReply("root")
             .StartTestAsync();
         }
 

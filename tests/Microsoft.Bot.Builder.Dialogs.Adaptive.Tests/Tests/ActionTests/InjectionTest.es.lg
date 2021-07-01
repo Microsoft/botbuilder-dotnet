@@ -1,0 +1,19 @@
+﻿# MyChoices_Prompt
+- Seleccione
+
+# MyChoices_UnknownPrompt
+- Ni un perro ni un gato. Seleccione
+
+# MyChoices_simple
+- ${['perro', 'gato']}
+
+
+> CONFIRM INPUT UNIT TEST
+# ConfirmInput_Prompt
+- Seleccione 
+
+# ConfirmInput_UnknownPrompt
+- Ni si! o ni!. Seleccione
+
+# ConfirmInput_complex
+- ${[{ value: "si!", synonyms: ["sí", "si"]},{ value: "ni!", synonyms: ["ni"] }]}

@@ -132,6 +132,18 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
         }
 
         [Fact]
+        public async Task Action_ChoiceInput_With_TemplateInjection_en()
+        {
+            await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
+        }
+        
+        [Fact]
+        public async Task Action_ChoiceInput_With_TemplateInjection_es()
+        {
+            await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
+        }
+
+        [Fact]
         public async Task Action_ChoiceInput_SimpleTemplate_en()
         {
             await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
@@ -169,6 +181,18 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
 
         [Fact]
         public async Task Action_ConfirmInput()
+        {
+            await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
+        }
+
+        [Fact]
+        public async Task Action_ConfirmInput_ComplexTemplateInjection_en()
+        {
+            await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
+        }
+
+        [Fact]
+        public async Task Action_ConfirmInput_ComplexTemplateInjection_es()
         {
             await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
         }
@@ -481,6 +505,12 @@ namespace Microsoft.Bot.Builder.Dialogs.Adaptive.Tests
 
         [Fact]
         public async Task Action_SetProperty()
+        {
+            await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
+        }
+
+        [Fact]
+        public async Task Action_SetProperty_With_Template_Inject()
         {
             await TestUtils.RunTestScript(_resourceExplorerFixture.ResourceExplorer);
         }
